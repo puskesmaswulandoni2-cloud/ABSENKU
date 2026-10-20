@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ABSENKU - Puskesmas Wulandoni</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #eef5f1;
+      margin: 0;
+      padding: 20px;
+      color: #24352d;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 20px auto;
+      padding: 24px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px #00000012;
+      text-align: center;
+    }
+
+    h1 { color: #16784b; margin-bottom: 6px; }
+    p { line-height: 1.5; }
+
+    video, canvas {
+      width: 100%;
+      max-height: 350px;
+      object-fit: cover;
+      background: #e3e8e5;
+      border-radius: 12px;
+      margin: 12px 0;
+    }
+
+    button {
+      width: 100%;
+      padding: 13px;
+      margin: 6px 0;
+      border: none;
+      border-radius: 9px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .utama { background: #16834f; color: white; }
+    .sekunder { background: #e7eee9; color: #24352d; }
+
+    #status {
+      padding: 12px;
+      background: #f0f4f1;
+      border-radius: 8px;
+      overflow-wrap: anywhere;
+    }
+
+    .catatan { font-size: 12px; color: #66756c; }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <h1>ABSENKU</h1>
+    <p><strong>Absensi Digital Pegawai</strong><br>
+    Puskesmas Wulandoni</p>
+
+    <p>Silakan aktifkan kamera untuk menguji fitur foto selfie.</p>
+
+    <video id="kamera" autoplay playsinline muted></video>
+    <canvas id="hasilFoto" hidden></canvas>
+
+    <button class="utama" onclick="bukaKamera()">
+      Aktifkan Kamera
+    </button>
+
+    <button class="sekunder" onclick="ambilFoto()">
+      Ambil Foto Selfie
+    </button>
+
+    <button class="sekunder" onclick="tutupKamera()">
+      Tutup Kamera
+    </button>
+
+    <p id="status">Status: kamera belum diaktifkan.</p>
+    <p class="catatan">
+      Versi uji kamera. Foto belum disimpan ke Google Spreadsheet.
+    </p>
+  </main>
+
+  <script>
+    let aliranKamera = null;
+
+    async function bukaKamera() {
+      const status = document.getElementById("status");
+      const video = document.getElementById("kamera");
+
+      if (!navigator.mediaDevices ||
+          !navigator.mediaDevices.getUserMedia) {
+        status.textContent =
+          "Kamera tidak tersedia. Buka halaman melalui HTTPS di Chrome.";
+        return;
+      }
+
+      try {
+        tutupKamera();
+
+        aliranKamera = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+          audio: false
+        });
+
+        video.srcObject = aliranKamera;
+        await video.play();
+
+        status.textContent =
+          "Kamera aktif. Silakan ambil foto selfie.";
+      } catch (error) {
+        status.textContent =
+          "Kamera gagal dibuka: " + error.name +
+          ". Periksa izin kamera Chrome.";
+      }
+    }
+
+    function ambilFoto() {
+      const video = document.getElementById("kamera");
+      const canvas = document.getElementById("hasilFoto");
+      const status = document.getElementById("status");
+
+      if (!aliranKamera || !video.videoWidth) {
+        status.textContent =
+          "Aktifkan kamera terlebih dahulu.";
+        return;
+      }
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      const konteks = canvas.getContext("2d");
+      konteks.drawImage(video, 0, 0);
+
+      canvas.hidden = false;
+      status.textContent =
+        "Foto berhasil diambil untuk pengujian. Belum tersimpan.";
+    }
+
+    function tutupKamera() {
+      if (aliranKamera) {
+        aliranKamera.getTracks().forEach(track => track.stop());
+        aliranKamera = null;
+      }
+
+      const video = document.getElementById("kamera");
+      if (video) video.srcObject = null;
+    }
+
+    window.addEventListener("pagehide", tutupKamera);
+  </script>
+</body>
+</html>
