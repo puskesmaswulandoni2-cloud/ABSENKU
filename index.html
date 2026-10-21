@@ -1,165 +1,371 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ABSENKU - Puskesmas Wulandoni</title>
-
   <style>
     * { box-sizing: border-box; }
-
     body {
       font-family: Arial, sans-serif;
       background: #eef5f1;
-      margin: 0;
-      padding: 20px;
       color: #24352d;
+      margin: 0;
+      padding: 16px;
     }
-
     .container {
-      max-width: 480px;
-      margin: 20px auto;
-      padding: 24px;
+      max-width: 500px;
+      margin: 12px auto;
+      padding: 22px;
       background: white;
       border-radius: 16px;
       box-shadow: 0 4px 16px #00000012;
-      text-align: center;
     }
-
-    h1 { color: #16784b; margin-bottom: 6px; }
-    p { line-height: 1.5; }
-
-    video, canvas {
+    h1 { color: #16784b; text-align: center; margin-bottom: 5px; }
+    .subjudul { text-align: center; margin-top: 0; }
+    label { display: block; font-weight: bold; margin: 14px 0 6px; }
+    input, textarea {
       width: 100%;
-      max-height: 350px;
-      object-fit: cover;
-      background: #e3e8e5;
-      border-radius: 12px;
-      margin: 12px 0;
+      padding: 12px;
+      border: 1px solid #ccd7d0;
+      border-radius: 8px;
+      font-size: 16px;
     }
-
+    textarea { min-height: 80px; resize: vertical; }
     button {
       width: 100%;
       padding: 13px;
-      margin: 6px 0;
-      border: none;
+      margin-top: 10px;
+      border: 0;
       border-radius: 9px;
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
     }
-
+    button:disabled { opacity: .55; cursor: not-allowed; }
     .utama { background: #16834f; color: white; }
     .sekunder { background: #e7eee9; color: #24352d; }
-
+    .pilihan {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .pilihan button { margin-top: 8px; }
+    .aktif { background: #125e3a; color: white; }
+    video, #preview {
+      width: 100%;
+      max-height: 340px;
+      object-fit: cover;
+      background: #e3e8e5;
+      border-radius: 12px;
+      margin-top: 12px;
+    }
+    #preview { display: none; }
     #status {
       padding: 12px;
+      margin-top: 14px;
       background: #f0f4f1;
       border-radius: 8px;
       overflow-wrap: anywhere;
     }
-
-    .catatan { font-size: 12px; color: #66756c; }
+    .catatan { font-size: 12px; color: #66756c; line-height: 1.5; }
   </style>
 </head>
-
 <body>
   <main class="container">
     <h1>ABSENKU</h1>
-    <p><strong>Absensi Digital Pegawai</strong><br>
-    Puskesmas Wulandoni</p>
+    <p class="subjudul">
+      <strong>Absensi Digital Pegawai</strong><br>
+      Puskesmas Wulandoni
+    </p>
 
-    <p>Silakan aktifkan kamera untuk menguji fitur foto selfie.</p>
+    <label>1. Pilih lokasi absensi</label>
+    <div class="pilihan">
+      <button id="btnDalam" class="sekunder"
+              onclick="pilihMode('Dalam Gedung')">
+        Dalam Gedung
+      </button>
+      <button id="btnLuar" class="sekunder"
+              onclick="pilihMode('Luar Gedung')">
+        Luar Gedung
+      </button>
+    </div>
 
+    <p id="petunjuk" class="catatan">
+      Pilih Dalam Gedung atau Luar Gedung untuk memulai.
+    </p>
+
+    <label for="nama">2. Nama pegawai</label>
+    <input id="nama" type="text" autocomplete="name"
+           placeholder="Masukkan nama lengkap">
+
+    <label for="nip">NIP (jika ada)</label>
+    <input id="nip" type="text" placeholder="Masukkan NIP">
+
+    <label for="keterangan">Keterangan kegiatan</label>
+    <textarea id="keterangan"
+      placeholder="Isi kegiatan atau keterangan absensi"></textarea>
+
+    <label>3. Foto langsung dari kamera</label>
     <video id="kamera" autoplay playsinline muted></video>
-    <canvas id="hasilFoto" hidden></canvas>
+    <img id="preview" alt="Foto absensi">
+    <canvas id="kanvas" hidden></canvas>
 
-    <button class="utama" onclick="bukaKamera()">
+    <button id="btnKamera" class="utama" onclick="bukaKamera()">
       Aktifkan Kamera
     </button>
-
     <button class="sekunder" onclick="ambilFoto()">
-      Ambil Foto Selfie
+      Ambil Foto
     </button>
 
-    <button class="sekunder" onclick="tutupKamera()">
-      Tutup Kamera
+    <label>4. Lokasi GPS</label>
+    <button class="sekunder" onclick="ambilLokasi()">
+      Ambil Lokasi GPS
+    </button>
+    <p id="lokasi">Lokasi belum diambil.</p>
+
+    <label>5. Jenis absensi</label>
+    <div class="pilihan">
+      <button class="sekunder" onclick="pilihStatus('Hadir')">Hadir</button>
+      <button class="sekunder" onclick="pilihStatus('Pulang')">Pulang</button>
+    </div>
+    <p id="statusAbsensi">Jenis absensi: Hadir</p>
+
+    <button id="btnKirim" class="utama" onclick="kirimAbsensi()">
+      Simpan Absensi
     </button>
 
-    <p id="status">Status: kamera belum diaktifkan.</p>
+    <p id="status">Status: siap digunakan.</p>
     <p class="catatan">
-      Versi uji kamera. Foto belum disimpan ke Google Spreadsheet.
+      Pengujian awal. Periksa Spreadsheet setelah mengirim data.
+      Jangan gunakan data pegawai sungguhan sebelum keamanan aplikasi
+      dan keberhasilan penyimpanan diverifikasi.
     </p>
   </main>
 
-  <script>
-    let aliranKamera = null;
+<script>
+  // GANTI dengan URL Web app ABSENKU yang berakhiran /exec.
+  const API_URL = "TEMPEL_URL_WEB_APP_ANDA";
 
-    async function bukaKamera() {
-      const status = document.getElementById("status");
-      const video = document.getElementById("kamera");
+  let mode = "";
+  let statusAbsensi = "Hadir";
+  let aliranKamera = null;
+  let fotoData = "";
+  let latitude = "";
+  let longitude = "";
+  let akurasiGps = "";
 
-      if (!navigator.mediaDevices ||
-          !navigator.mediaDevices.getUserMedia) {
-        status.textContent =
-          "Kamera tidak tersedia. Buka halaman melalui HTTPS di Chrome.";
-        return;
-      }
+  const el = id => document.getElementById(id);
 
-      try {
-        tutupKamera();
+  function pesan(teks) {
+    el("status").textContent = teks;
+  }
 
-        aliranKamera = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" },
-          audio: false
-        });
+  function pilihMode(nilai) {
+    mode = nilai;
+    fotoData = "";
+    el("preview").style.display = "none";
+    el("btnDalam").className =
+      nilai === "Dalam Gedung" ? "aktif" : "sekunder";
+    el("btnLuar").className =
+      nilai === "Luar Gedung" ? "aktif" : "sekunder";
 
-        video.srcObject = aliranKamera;
-        await video.play();
+    if (nilai === "Dalam Gedung") {
+      el("petunjuk").textContent =
+        "Dalam Gedung: ambil GPS dan foto selfie.";
+    } else {
+      el("petunjuk").textContent =
+        "Luar Gedung: foto kegiatan dan isi keterangannya.";
+    }
+    tutupKamera();
+    pesan("Mode " + nilai + " dipilih. Aktifkan kamera.");
+  }
 
-        status.textContent =
-          "Kamera aktif. Silakan ambil foto selfie.";
-      } catch (error) {
-        status.textContent =
-          "Kamera gagal dibuka: " + error.name +
-          ". Periksa izin kamera Chrome.";
-      }
+  function pilihStatus(nilai) {
+    statusAbsensi = nilai;
+    el("statusAbsensi").textContent = "Jenis absensi: " + nilai;
+  }
+
+  async function bukaKamera() {
+    if (!mode) {
+      pesan("Pilih Dalam Gedung atau Luar Gedung terlebih dahulu.");
+      return;
     }
 
-    function ambilFoto() {
-      const video = document.getElementById("kamera");
-      const canvas = document.getElementById("hasilFoto");
-      const status = document.getElementById("status");
-
-      if (!aliranKamera || !video.videoWidth) {
-        status.textContent =
-          "Aktifkan kamera terlebih dahulu.";
-        return;
-      }
-
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-
-      const konteks = canvas.getContext("2d");
-      konteks.drawImage(video, 0, 0);
-
-      canvas.hidden = false;
-      status.textContent =
-        "Foto berhasil diambil untuk pengujian. Belum tersimpan.";
+    if (!navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia) {
+      pesan("Kamera tidak tersedia. Pastikan halaman dibuka melalui HTTPS.");
+      return;
     }
 
-    function tutupKamera() {
-      if (aliranKamera) {
-        aliranKamera.getTracks().forEach(track => track.stop());
-        aliranKamera = null;
-      }
+    tutupKamera();
 
-      const video = document.getElementById("kamera");
-      if (video) video.srcObject = null;
+    try {
+      aliranKamera = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: {
+            ideal: mode === "Luar Gedung" ? "environment" : "user"
+          },
+          width: { ideal: 800 },
+          height: { ideal: 600 }
+        },
+        audio: false
+      });
+
+      el("kamera").srcObject = aliranKamera;
+      await el("kamera").play();
+      pesan("Kamera aktif. Ambil foto saat siap.");
+    } catch (err) {
+      pesan("Kamera gagal dibuka: " + err.name +
+        ". Periksa izin kamera Chrome.");
+    }
+  }
+
+  function tutupKamera() {
+    if (aliranKamera) {
+      aliranKamera.getTracks().forEach(track => track.stop());
+      aliranKamera = null;
+    }
+    el("kamera").srcObject = null;
+  }
+
+  function ambilFoto() {
+    const video = el("kamera");
+    const kanvas = el("kanvas");
+
+    if (!aliranKamera || !video.videoWidth) {
+      pesan("Aktifkan kamera terlebih dahulu.");
+      return;
     }
 
-    window.addEventListener("pagehide", tutupKamera);
-  </script>
+    const lebar = Math.min(video.videoWidth, 800);
+    const tinggi = Math.round(
+      lebar * video.videoHeight / video.videoWidth
+    );
+
+    kanvas.width = lebar;
+    kanvas.height = tinggi;
+    kanvas.getContext("2d").drawImage(video, 0, 0, lebar, tinggi);
+
+    fotoData = kanvas.toDataURL("image/jpeg", 0.60);
+    el("preview").src = fotoData;
+    el("preview").style.display = "block";
+    pesan("Foto berhasil diambil. Periksa foto sebelum mengirim.");
+  }
+
+  function ambilLokasi() {
+    if (!navigator.geolocation) {
+      pesan("Browser ini tidak mendukung GPS.");
+      return;
+    }
+
+    pesan("Mengambil lokasi GPS. Izinkan akses lokasi jika diminta.");
+
+    navigator.geolocation.getCurrentPosition(
+      posisi => {
+        latitude = posisi.coords.latitude;
+        longitude = posisi.coords.longitude;
+        akurasiGps = posisi.coords.accuracy;
+
+        el("lokasi").textContent =
+          "Latitude: " + latitude.toFixed(6) +
+          " | Longitude: " + longitude.toFixed(6) +
+          " | Akurasi: " + Math.round(akurasiGps) + " meter";
+
+        pesan("Lokasi berhasil diambil.");
+      },
+      err => {
+        pesan("GPS gagal diambil: " + err.message);
+      },
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+    );
+  }
+
+  function waktuLokal() {
+    const sekarang = new Date();
+    const dua = n => String(n).padStart(2, "0");
+
+    return {
+      tanggal: sekarang.getFullYear() + "-" +
+        dua(sekarang.getMonth() + 1) + "-" +
+        dua(sekarang.getDate()),
+      jam: dua(sekarang.getHours()) + ":" +
+        dua(sekarang.getMinutes()) + ":" +
+        dua(sekarang.getSeconds())
+    };
+  }
+
+  async function kirimAbsensi() {
+    const nama = el("nama").value.trim();
+    const nip = el("nip").value.trim();
+    const keterangan = el("keterangan").value.trim();
+
+    if (!mode) {
+      pesan("Pilih lokasi absensi terlebih dahulu.");
+      return;
+    }
+    if (!nama) {
+      pesan("Nama pegawai wajib diisi.");
+      el("nama").focus();
+      return;
+    }
+    if (!fotoData) {
+      pesan("Ambil foto terlebih dahulu.");
+      return;
+    }
+    if (mode === "Dalam Gedung" && !latitude) {
+      pesan("Untuk Dalam Gedung, ambil lokasi GPS terlebih dahulu.");
+      return;
+    }
+    if (API_URL === "TEMPEL_URL_WEB_APP_ANDA" ||
+        !API_URL.endsWith("/exec")) {
+      pesan("Masukkan URL Web app yang benar pada variabel API_URL.");
+      return;
+    }
+
+    const waktu = waktuLokal();
+    const data = {
+      nama: nama,
+      nip: nip,
+      jenisAbsensi: mode,
+      tanggal: waktu.tanggal,
+      jam: waktu.jam,
+      latitude: latitude,
+      longitude: longitude,
+      akurasiGps: akurasiGps,
+      keterangan: keterangan,
+      status: statusAbsensi,
+      fotoBase64: fotoData,
+      fotoMimeType: "image/jpeg"
+    };
+
+    const tombol = el("btnKirim");
+    tombol.disabled = true;
+    tombol.textContent = "Mengirim...";
+
+    try {
+      // mode no-cors menghindari preflight CORS.
+      // Browser tidak dapat membaca balasan server pada mode ini.
+      await fetch(https://script.google.com/macros/s/AKfycbxXj_dLCiR4Cb8Fu4dphq6GauXttVwKbEgwPCqJzxDS3dx6PbRQe7yrJ1iDdXMH8DSfOg/exec, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "text/plain;charset=UTF-8"
+        },
+        body: JSON.stringify(data)
+      });
+
+      pesan("Permintaan dikirim. Buka Spreadsheet untuk memastikan " +
+        "baris absensi dan foto benar-benar tersimpan.");
+    } catch (err) {
+      pesan("Pengiriman gagal dari browser: " + err.message);
+    } finally {
+      tombol.disabled = false;
+      tombol.textContent = "Simpan Absensi";
+    }
+  }
+
+  window.addEventListener("pagehide", tutupKamera);
+</script>
 </body>
 </html>
