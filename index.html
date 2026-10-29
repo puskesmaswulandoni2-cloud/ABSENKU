@@ -1,103 +1,169 @@
 <!doctype html>
-<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#16784b"><title>ABSENKU | Puskesmas Wulandoni</title>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#16784b">
+<title>ABSENKU | Puskesmas Wulandoni</title>
 <style>
-:root{--g:#16784b;--d:#124a31;--bg:#edf5f0;--ink:#21362b;--muted:#68786e;--line:#dbe6df;--red:#b42318}*{box-sizing:border-box}body{margin:0;padding:12px;background:var(--bg);font-family:Arial,sans-serif;color:var(--ink)}main{max-width:620px;margin:12px auto;background:white;border-radius:20px;box-shadow:0 6px 28px #193b2814;overflow:hidden}.hero{padding:24px;text-align:center;background:linear-gradient(140deg,#e7f6ed,#fff);border-bottom:1px solid var(--line)}.logo{height:52px;width:52px;border-radius:16px;background:var(--g);color:white;display:grid;place-items:center;margin:auto auto 10px;font-size:27px;font-weight:bold}.hero h1{margin:0;color:var(--g);letter-spacing:1px}.hero p{line-height:1.5;margin:8px 0 0}.body{padding:20px}.step{font-weight:bold;color:var(--d);margin:20px 0 10px}.step:first-child{margin-top:0}.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mode{border:1px solid var(--line);background:#f5f8f6;padding:15px 8px;border-radius:12px;font-weight:bold;cursor:pointer}.mode strong{display:block;font-size:24px;margin-bottom:5px}.mode.selected{background:#e3f4e9;border:2px solid var(--g)}label{display:block;font-weight:bold;font-size:14px;margin:14px 0 7px}input,textarea,select{width:100%;padding:12px;border:1px solid #cbd8cf;border-radius:10px;font:inherit;background:white;color:var(--ink)}textarea{min-height:75px;resize:vertical}.btn{width:100%;padding:13px;margin-top:10px;border:0;border-radius:10px;font-weight:bold;cursor:pointer}.primary{background:var(--g);color:white}.secondary{background:#e9f0eb;color:var(--ink)}button:disabled{opacity:.6}.camera{background:#122017;border-radius:12px;overflow:hidden;margin-top:10px;min-height:120px}.camera video{width:100%;max-height:380px;object-fit:cover;display:block}.preview{display:none;width:100%;max-height:380px;object-fit:contain;background:#111;margin-top:10px;border-radius:12px}.gps,.status{padding:12px;border-radius:10px;background:#f3f6f4;border:1px solid var(--line);line-height:1.5;overflow-wrap:anywhere}.good{background:#e8f7ed;border-color:#b8e0c5}.bad{background:#fff0ef;border-color:#f2c4c0;color:var(--red)}.small{font-size:12px;color:var(--muted);line-height:1.5}.req{color:var(--red)}.hidden{display:none!important}.foot{text-align:center;color:var(--muted);font-size:11px;line-height:1.5;padding:0 20px 20px}@media(max-width:420px){.body{padding:16px}.hero{padding:20px}}
-</style></head><body><main><header class="hero"><div class="logo">A</div><h1>ABSENKU</h1><p><b>Absensi Digital Pegawai</b><br>Puskesmas Wulandoni</p></header><section class="body">
-<div class="step">1. Pilih lokasi absensi</div><div class="modes"><button id="inMode" class="mode" onclick="pilihMode('Dalam Gedung')"><strong>🏥</strong>Dalam Gedung</button><button id="outMode" class="mode" onclick="pilihMode('Luar Gedung')"><strong>📍</strong>Luar Gedung</button></div><p id="modeHint" class="small">Dalam gedung memerlukan GPS dan foto selfie. Luar gedung memerlukan foto kegiatan.</p>
-<div class="step">2. Identitas pegawai</div><label for="nama">Nama lengkap <span class="req">*</span></label>
-<select id="nama" required>
-  <option value="">Memuat daftar pegawai...</option>
+:root{--g:#16784b;--d:#124a31;--bg:#edf5f0;--ink:#21362b;--muted:#68786e;--line:#dbe6df;--red:#b42318}
+*{box-sizing:border-box}body{margin:0;padding:12px;background:var(--bg);font-family:Arial,sans-serif;color:var(--ink)}
+main{max-width:620px;margin:12px auto;background:white;border-radius:20px;box-shadow:0 6px 28px #193b2814;overflow:hidden}
+.hero{padding:24px;text-align:center;background:linear-gradient(140deg,#e7f6ed,#fff);border-bottom:1px solid var(--line)}
+.logo{height:52px;width:52px;border-radius:16px;background:var(--g);color:white;display:grid;place-items:center;margin:auto auto 10px;font-size:27px;font-weight:bold}
+.hero h1{margin:0;color:var(--g);letter-spacing:1px}.hero p{line-height:1.5;margin:8px 0 0}
+.body{padding:20px}.step{font-weight:bold;color:var(--d);margin:20px 0 10px}.step:first-child{margin-top:0}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mode{border:1px solid var(--line);background:#f5f8f6;padding:15px 8px;border-radius:12px;font-weight:bold;cursor:pointer}
+.mode strong{display:block;font-size:24px;margin-bottom:5px}.mode.selected{background:#e3f4e9;border:2px solid var(--g)}
+label{display:block;font-weight:bold;font-size:14px;margin:14px 0 7px}
+input,textarea,select{width:100%;padding:12px;border:1px solid #cbd8cf;border-radius:10px;font:inherit;background:white;color:var(--ink)}
+textarea{min-height:75px;resize:vertical}.btn{width:100%;padding:13px;margin-top:10px;border:0;border-radius:10px;font-weight:bold;cursor:pointer}
+.primary{background:var(--g);color:white}.secondary{background:#e9f0eb;color:var(--ink)}button:disabled{opacity:.6}
+.camera{background:#122017;border-radius:12px;overflow:hidden;margin-top:10px;min-height:120px}.camera video{width:100%;max-height:380px;object-fit:cover;display:block}
+.preview{display:none;width:100%;max-height:380px;object-fit:contain;background:#111;margin-top:10px;border-radius:12px}
+.gps,.status{padding:12px;border-radius:10px;background:#f3f6f4;border:1px solid var(--line);line-height:1.5;overflow-wrap:anywhere}
+.good{background:#e8f7ed;border-color:#b8e0c5}.bad{background:#fff0ef;border-color:#f2c4c0;color:var(--red)}
+.small{font-size:12px;color:var(--muted);line-height:1.5}.req{color:var(--red)}.hidden{display:none!important}
+.foot{text-align:center;color:var(--muted);font-size:11px;line-height:1.5;padding:0 20px 20px}
+@media(max-width:420px){.body{padding:16px}.hero{padding:20px}}
+</style>
+</head>
+<body>
+<main>
+<header class="hero"><div class="logo">A</div><h1>ABSENKU</h1><p><b>Absensi Digital Pegawai</b><br>Puskesmas Wulandoni</p></header>
+<section class="body">
+<div class="step">1. Pilih lokasi absensi</div>
+<div class="modes">
+<button id="inMode" class="mode" onclick="pilihMode('Dalam Gedung')"><strong>🏥</strong>Dalam Gedung</button>
+<button id="outMode" class="mode" onclick="pilihMode('Luar Gedung')"><strong>📍</strong>Luar Gedung</button>
+</div>
+<p id="modeHint" class="small">Dalam gedung memerlukan GPS dan foto selfie. Luar gedung memerlukan foto kegiatan.</p>
+
+<div class="step">2. Identitas pegawai</div>
+<label for="nama">Nama lengkap <span class="req">*</span></label>
+<select id="nama" required><option value="">Memuat daftar pegawai...</option></select>
+<label for="nip">NIP (otomatis)</label>
+<input id="nip" placeholder="NIP terisi otomatis" readonly>
+
+<label for="statusAbsensi">Jenis absensi <span class="req">*</span></label>
+<select id="statusAbsensi" onchange="ubahJenisAbsensi()">
+<option value="Hadir">Hadir / Masuk</option><option value="Pulang">Pulang</option>
+<option value="Izin">Izin</option><option value="Sakit">Sakit</option><option value="Dinas Luar">Dinas luar</option>
 </select>
 
-<label for="nip">NIP (otomatis)</label>
-<input id="nip" placeholder="NIP terisi otomatis" readonly><label for="statusAbsensi">Jenis absensi</label><select id="statusAbsensi"><option value="Hadir">Hadir / Masuk</option><option value="Pulang">Pulang</option><option value="Izin">Izin</option><option value="Sakit">Sakit</option><option value="Dinas Luar">Dinas luar</option></select>
-<label for="keterangan">Keterangan kegiatan <span id="ketWajib" class="req hidden">*</span></label><textarea id="keterangan" placeholder="Isi kegiatan, terutama untuk Luar Gedung"></textarea>
-<div class="step">3. Foto <span class="req">*</span></div><div class="camera"><video id="video" autoplay playsinline muted></video></div><img id="preview" class="preview" alt="Pratinjau foto"><button id="openCam" class="btn primary" onclick="bukaKamera()">Aktifkan Kamera</button><button class="btn secondary" onclick="ambilFoto()">Ambil Foto</button><button class="btn secondary" onclick="ulangFoto()">Ulangi Foto</button><canvas id="canvas" class="hidden"></canvas>
-<div class="step">4. GPS untuk Dalam Gedung</div><div id="gpsInfo" class="gps">GPS belum diambil.</div><button class="btn secondary" onclick="ambilGPS()">Aktifkan GPS / Ambil Lokasi</button><p class="small">GPS hanya diwajibkan untuk Dalam Gedung. Untuk Luar Gedung, bukti utama adalah foto kegiatan dan keterangan.</p>
-<button id="sendBtn" class="btn primary" onclick="kirimAbsensi()">Kirim Absensi</button><div id="message" class="status">Pilih lokasi absensi untuk memulai.</div></section><div class="foot">Pastikan baris absensi dan tautan foto muncul pada Google Spreadsheet setelah pengiriman.</div></main>
+<div id="shiftWrap" class="hidden">
+<label for="shift">Shift kerja <span class="req">*</span></label>
+<select id="shift" onchange="perbaruiInfoShift()">
+<option value="">-- Pilih shift --</option><option value="Pagi">Pagi (Masuk 08.00 / Pulang 14.00)</option>
+<option value="Siang">Siang (Masuk 14.00 / Pulang 20.00)</option>
+<option value="Malam">Malam (Masuk 20.00 / Pulang 08.00)</option>
+</select>
+<div id="shiftInfo" class="small">Pilih shift sesuai jadwal kerja.</div>
+</div>
+
+<label for="keterangan">Keterangan kegiatan <span id="ketWajib" class="req hidden">*</span></label>
+<textarea id="keterangan" placeholder="Isi kegiatan, terutama untuk Luar Gedung"></textarea>
+
+<div class="step">3. Foto <span class="req">*</span></div>
+<div class="camera"><video id="video" autoplay playsinline muted></video></div>
+<img id="preview" class="preview" alt="Pratinjau foto">
+<button id="openCam" class="btn primary" onclick="bukaKamera()">Aktifkan Kamera</button>
+<button class="btn secondary" onclick="ambilFoto()">Ambil Foto</button>
+<button class="btn secondary" onclick="ulangFoto()">Ulangi Foto</button>
+<canvas id="canvas" class="hidden"></canvas>
+
+<div class="step">4. GPS untuk Dalam Gedung</div>
+<div id="gpsInfo" class="gps">GPS belum diambil.</div>
+<button class="btn secondary" onclick="ambilGPS()">Aktifkan GPS / Ambil Lokasi</button>
+<p class="small">GPS hanya diwajibkan untuk Dalam Gedung. Untuk Luar Gedung, bukti utama adalah foto kegiatan dan keterangan.</p>
+<button id="sendBtn" class="btn primary" onclick="kirimAbsensi()">Kirim Absensi</button>
+<div id="message" class="status">Pilih lokasi absensi untuk memulai.</div>
+</section>
+<div class="foot">Pastikan baris absensi dan tautan foto muncul pada Google Spreadsheet setelah pengiriman.</div>
+</main>
+
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbxqzSx60h3gOt5YQOochVnuVcwYisDx5VhijcHfQH3FgEIfkNbu1utTxxDLdn2-7Hav/exec";
-let mode="",stream=null,photoData="",gps={latitude:"",longitude:"",accuracy:""};const $=id=>document.getElementById(id);
-function msg(t,k=""){
-  $("message").textContent=t;
-  $("message").className="status"+(k?" "+k:"");
+let mode="",stream=null,photoData="",gps={latitude:"",longitude:"",accuracy:""};
+const $=id=>document.getElementById(id);
+
+function msg(t,k=""){$("message").textContent=t;$("message").className="status"+(k?" "+k:"");}
+
+function muatPegawai(){
+ const select=$("nama");select.innerHTML='<option value="">Memuat daftar pegawai...</option>';
+ const callbackName="absenkuPegawaiCallback";const lama=document.getElementById("pegawaiScript");if(lama)lama.remove();
+ window[callbackName]=function(data){
+  const script=document.getElementById("pegawaiScript");if(script)script.remove();
+  try{delete window[callbackName]}catch(e){}
+  select.innerHTML='<option value="">-- Pilih nama pegawai --</option>';
+  if(!data||!data.ok||!Array.isArray(data.pegawai)){select.innerHTML='<option value="">Daftar pegawai gagal dimuat</option>';msg("Daftar pegawai gagal dimuat. Periksa deployment Apps Script.","bad");return;}
+  if(data.pegawai.length===0){select.innerHTML='<option value="">Daftar pegawai kosong</option>';msg("Data pegawai belum terbaca dari Spreadsheet.","bad");return;}
+  data.pegawai.forEach(function(p){const opsi=document.createElement("option");opsi.value=p.nama;opsi.textContent=p.nama;opsi.dataset.nip=p.nip||"";select.appendChild(opsi);});
+  msg("Daftar pegawai berhasil dimuat.","good");
+ };
+ const script=document.createElement("script");script.id="pegawaiScript";
+ script.onerror=function(){delete window[callbackName];script.remove();select.innerHTML='<option value="">Gagal memuat pegawai</option>';msg("Gagal menghubungi Apps Script. Periksa URL dan deployment.","bad");};
+ script.src=API_URL+"?action=pegawai&callback="+callbackName+"&_="+Date.now();document.body.appendChild(script);
 }
+$("nama").addEventListener("change",function(){const opsi=this.selectedOptions[0];$("nip").value=opsi?(opsi.dataset.nip||""):"";});
+window.addEventListener("load",function(){muatPegawai();ubahJenisAbsensi();});
 
-function muatPegawai() {
-  const select = $("nama");
-  select.innerHTML = '<option value="">Memuat daftar pegawai...</option>';
-
-  const callbackName = "absenkuPegawaiCallback";
-  const lama = document.getElementById("pegawaiScript");
-  if (lama) lama.remove();
-
-  window[callbackName] = function(data) {
-    const script = document.getElementById("pegawaiScript");
-    if (script) script.remove();
-
-    try {
-      delete window[callbackName];
-    } catch (e) {}
-
-    select.innerHTML = '<option value="">-- Pilih nama pegawai --</option>';
-
-    if (!data || !data.ok || !Array.isArray(data.pegawai)) {
-      select.innerHTML = '<option value="">Daftar pegawai gagal dimuat</option>';
-      msg("Daftar pegawai gagal dimuat. Periksa deployment Apps Script.", "bad");
-      return;
-    }
-
-    if (data.pegawai.length === 0) {
-      select.innerHTML = '<option value="">Daftar pegawai kosong</option>';
-      msg("Data pegawai belum terbaca dari Spreadsheet.", "bad");
-      return;
-    }
-
-    data.pegawai.forEach(function(p) {
-      const opsi = document.createElement("option");
-      opsi.value = p.nama;
-      opsi.textContent = p.nama;
-      opsi.dataset.nip = p.nip || "";
-      select.appendChild(opsi);
-    });
-
-    msg("Daftar pegawai berhasil dimuat.", "good");
-  };
-
-  const script = document.createElement("script");
-  script.id = "pegawaiScript";
-
-  script.onerror = function() {
-    delete window[callbackName];
-    script.remove();
-    select.innerHTML = '<option value="">Gagal memuat pegawai</option>';
-    msg("Gagal menghubungi Apps Script. Periksa URL dan deployment.", "bad");
-  };
-
-  script.src = API_URL + "?action=pegawai&callback=" +
-               callbackName + "&_=" + Date.now();
-
-  document.body.appendChild(script);
+function pilihMode(v){
+ mode=v;photoData="";$("preview").style.display="none";
+ $("inMode").classList.toggle("selected",v==="Dalam Gedung");$("outMode").classList.toggle("selected",v==="Luar Gedung");
+ $("modeHint").textContent=v==="Dalam Gedung"?"Aktifkan GPS dan ambil foto selfie di Puskesmas.":"Ambil foto kegiatan di luar gedung dan isi keterangan kegiatan.";
+ $("ketWajib").classList.toggle("hidden",v!=="Luar Gedung");stopCamera();
+ if(v==="Luar Gedung"){$("shift").value="";}ubahJenisAbsensi();msg("Mode "+v+" dipilih.");
 }
-
-$("nama").addEventListener("change", function() {
-  const opsi = this.selectedOptions[0];
-  $("nip").value = opsi ? (opsi.dataset.nip || "") : "";
-});
-
-window.addEventListener("load", muatPegawai);
-function pilihMode(v){mode=v;photoData="";$("preview").style.display="none";$("inMode").classList.toggle("selected",v==="Dalam Gedung");$("outMode").classList.toggle("selected",v==="Luar Gedung");$("modeHint").textContent=v==="Dalam Gedung"?"Aktifkan GPS dan ambil foto selfie di Puskesmas.":"Ambil foto kegiatan di luar gedung dan isi keterangan kegiatan.";$("ketWajib").classList.toggle("hidden",v!=="Luar Gedung");stopCamera();msg("Mode "+v+" dipilih.");}
-async function bukaKamera(){if(!mode){msg("Pilih Dalam Gedung atau Luar Gedung dahulu.","bad");return;}if(!navigator.mediaDevices?.getUserMedia){msg("Kamera tidak tersedia. Buka aplikasi melalui GitHub Pages HTTPS.","bad");return;}stopCamera();try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:mode==="Luar Gedung"?"environment":"user"},width:{ideal:800},height:{ideal:600}},audio:false});$("video").srcObject=stream;await $("video").play();msg("Kamera aktif. Ambil foto bila siap.","good");}catch(e){msg("Kamera gagal dibuka ("+(e.name||"Error")+"). Izinkan kamera di browser.","bad");}}
+function ubahJenisAbsensi(){
+ const status=$("statusAbsensi").value;
+ const perluShift=mode==="Dalam Gedung"&&(status==="Hadir"||status==="Pulang");
+ $("shiftWrap").classList.toggle("hidden",!perluShift);
+ if(!perluShift){$("shift").value="";$("shiftInfo").textContent="Pilih shift sesuai jadwal kerja.";}
+}
+function perbaruiInfoShift(){
+ const s=$("shift").value;
+ const jadwal={Pagi:"Pagi: Masuk 08.00, Pulang 14.00.",Siang:"Siang: Masuk 14.00, Pulang 20.00.",Malam:"Malam: Masuk 20.00, Pulang 08.00 hari berikutnya."};
+ $("shiftInfo").textContent=jadwal[s]||"Pilih shift sesuai jadwal kerja.";
+}
+async function bukaKamera(){
+ if(!mode){msg("Pilih Dalam Gedung atau Luar Gedung dahulu.","bad");return;}
+ if(!navigator.mediaDevices?.getUserMedia){msg("Kamera tidak tersedia. Buka aplikasi melalui GitHub Pages HTTPS.","bad");return;}
+ stopCamera();
+ try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:mode==="Luar Gedung"?"environment":"user"},width:{ideal:800},height:{ideal:600}},audio:false});$("video").srcObject=stream;await $("video").play();msg("Kamera aktif. Ambil foto bila siap.","good");}
+ catch(e){msg("Kamera gagal dibuka ("+(e.name||"Error")+"). Izinkan kamera di browser.","bad");}
+}
 function stopCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}if($("video"))$("video").srcObject=null;}
-function ambilFoto(){let v=$("video"),c=$("canvas");if(!stream||!v.videoWidth){msg("Aktifkan kamera terlebih dahulu.","bad");return;}let w=Math.min(v.videoWidth,800),h=Math.round(w*v.videoHeight/v.videoWidth);c.width=w;c.height=h;c.getContext("2d").drawImage(v,0,0,w,h);photoData=c.toDataURL("image/jpeg",.55);$("preview").src=photoData;$("preview").style.display="block";msg("Foto siap dikirim. Periksa pratinjau.","good");}
+function ambilFoto(){
+ const v=$("video"),c=$("canvas");if(!stream||!v.videoWidth){msg("Aktifkan kamera terlebih dahulu.","bad");return;}
+ const w=Math.min(v.videoWidth,800),h=Math.round(w*v.videoHeight/v.videoWidth);c.width=w;c.height=h;c.getContext("2d").drawImage(v,0,0,w,h);
+ photoData=c.toDataURL("image/jpeg",.55);$("preview").src=photoData;$("preview").style.display="block";msg("Foto siap dikirim. Periksa pratinjau.","good");
+}
 function ulangFoto(){photoData="";$("preview").removeAttribute("src");$("preview").style.display="none";msg("Foto dihapus. Ambil foto kembali.");}
-function ambilGPS(){if(!navigator.geolocation){msg("Browser tidak mendukung GPS.","bad");return;}msg("Mengambil GPS. Izinkan akses lokasi.");navigator.geolocation.getCurrentPosition(p=>{gps={latitude:p.coords.latitude,longitude:p.coords.longitude,accuracy:p.coords.accuracy};$("gpsInfo").textContent="Latitude: "+gps.latitude.toFixed(6)+" | Longitude: "+gps.longitude.toFixed(6)+" | Akurasi: "+Math.round(gps.accuracy)+" meter";msg("GPS berhasil diambil.","good");},e=>msg("GPS gagal: "+e.message,"bad"),{enableHighAccuracy:true,timeout:20000,maximumAge:0});}
-async function kirimAbsensi(){const nama=$("nama").value.trim(),nip=$("nip").value.trim(),keterangan=$("keterangan").value.trim(),status=$("statusAbsensi").value;if(!mode)return msg("Pilih lokasi absensi dahulu.","bad");if(!nama)return msg("Nama lengkap wajib diisi.","bad");if(!photoData)return msg("Ambil foto terlebih dahulu.","bad");if(mode==="Dalam Gedung"&&!gps.latitude)return msg("Aktifkan GPS dan ambil lokasi untuk Dalam Gedung.","bad");if(mode==="Luar Gedung"&&!keterangan)return msg("Isi keterangan kegiatan Luar Gedung.","bad");
-const b=$("sendBtn");b.disabled=true;b.textContent="Mengirim…";msg("Mengirim absensi ke Spreadsheet…");
-try{const payload={nama,nip,jenisAbsensi:mode,lokasiKerja:mode==="Luar Gedung"?"Dinas Luar":"Dalam Gedung",status,latitude:gps.latitude,longitude:gps.longitude,akurasiGps:gps.accuracy,keterangan,fotoBase64:photoData,fotoMimeType:"image/jpeg"};
-// no-cors diperlukan pada GitHub Pages karena Apps Script tidak menyediakan CORS standar.
-await fetch(API_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify(payload)});
-msg("Permintaan terkirim. Karena browser tidak menampilkan balasan API, buka Spreadsheet dan pastikan baris baru serta tautan foto muncul. Jika tidak muncul, periksa deployment Apps Script.","good");
-}catch(e){msg("Pengiriman gagal: "+(e.message||e),"bad");}finally{b.disabled=false;b.textContent="Kirim Absensi";}}
+function ambilGPS(){
+ if(!navigator.geolocation){msg("Browser tidak mendukung GPS.","bad");return;}
+ msg("Mengambil GPS. Izinkan akses lokasi.");
+ navigator.geolocation.getCurrentPosition(p=>{gps={latitude:p.coords.latitude,longitude:p.coords.longitude,accuracy:p.coords.accuracy};$("gpsInfo").textContent="Latitude: "+gps.latitude.toFixed(6)+" | Longitude: "+gps.longitude.toFixed(6)+" | Akurasi: "+Math.round(gps.accuracy)+" meter";msg("GPS berhasil diambil.","good");},
+ e=>msg("GPS gagal: "+e.message,"bad"),{enableHighAccuracy:true,timeout:20000,maximumAge:0});
+}
+async function kirimAbsensi(){
+ const nama=$("nama").value.trim(),nip=$("nip").value.trim(),keterangan=$("keterangan").value.trim(),status=$("statusAbsensi").value,shift=$("shift").value;
+ if(!mode)return msg("Pilih lokasi absensi dahulu.","bad");
+ if(!nama)return msg("Nama lengkap wajib diisi.","bad");
+ if(mode==="Dalam Gedung"&&(status==="Hadir"||status==="Pulang")&&!shift)return msg("Pilih Shift Pagi, Siang, atau Malam.","bad");
+ if(!photoData)return msg("Ambil foto terlebih dahulu.","bad");
+ if(mode==="Dalam Gedung"&&!gps.latitude)return msg("Aktifkan GPS dan ambil lokasi untuk Dalam Gedung.","bad");
+ if(mode==="Luar Gedung"&&!keterangan)return msg("Isi keterangan kegiatan Luar Gedung.","bad");
+ const b=$("sendBtn");b.disabled=true;b.textContent="Mengirim…";msg("Mengirim absensi ke Spreadsheet…");
+ try{
+  const payload={nama:nama,nip:nip,jenisAbsensi:mode,lokasiKerja:mode==="Luar Gedung"?"Dinas Luar":"Dalam Gedung",status:status,shift:shift,latitude:gps.latitude,longitude:gps.longitude,akurasiGps:gps.accuracy,keterangan:keterangan,fotoBase64:photoData,fotoMimeType:"image/jpeg"};
+  // no-cors digunakan agar permintaan dari GitHub Pages dapat dikirim ke Apps Script.
+  await fetch(API_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify(payload)});
+  msg("Permintaan terkirim. Periksa Spreadsheet untuk memastikan baris absensi dan tautan foto benar-benar tersimpan.","good");
+ }catch(e){msg("Pengiriman gagal: "+(e.message||e),"bad");}
+ finally{b.disabled=false;b.textContent="Kirim Absensi";}
+}
 window.addEventListener("pagehide",stopCamera);
-</script></body></html>
+</script>
+</body>
+</html>
