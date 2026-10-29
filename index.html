@@ -18,7 +18,74 @@
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbxqzSx60h3gOt5YQOochVnuVcwYisDx5VhijcHfQH3FgEIfkNbu1utTxxDLdn2-7Hav/exec";
 let mode="",stream=null,photoData="",gps={latitude:"",longitude:"",accuracy:""};const $=id=>document.getElementById(id);
-function msg(t,k=""){ $("message").textContent=t;$("message").className="status"+(k?" "+k:"");}
+function msg(t,k=""){
+  $("message").textContent=t;
+  $("message").className="status"+(k?" "+k:"");
+}
+
+function muatPegawai() {
+  const select = $("nama");
+  select.innerHTML = '<option value="">Memuat daftar pegawai...</option>';
+
+  const callbackName = "absenkuPegawaiCallback";
+  const lama = document.getElementById("pegawaiScript");
+  if (lama) lama.remove();
+
+  window[callbackName] = function(data) {
+    const script = document.getElementById("pegawaiScript");
+    if (script) script.remove();
+
+    try {
+      delete window[callbackName];
+    } catch (e) {}
+
+    select.innerHTML = '<option value="">-- Pilih nama pegawai --</option>';
+
+    if (!data || !data.ok || !Array.isArray(data.pegawai)) {
+      select.innerHTML = '<option value="">Daftar pegawai gagal dimuat</option>';
+      msg("Daftar pegawai gagal dimuat. Periksa deployment Apps Script.", "bad");
+      return;
+    }
+
+    if (data.pegawai.length === 0) {
+      select.innerHTML = '<option value="">Daftar pegawai kosong</option>';
+      msg("Data pegawai belum terbaca dari Spreadsheet.", "bad");
+      return;
+    }
+
+    data.pegawai.forEach(function(p) {
+      const opsi = document.createElement("option");
+      opsi.value = p.nama;
+      opsi.textContent = p.nama;
+      opsi.dataset.nip = p.nip || "";
+      select.appendChild(opsi);
+    });
+
+    msg("Daftar pegawai berhasil dimuat.", "good");
+  };
+
+  const script = document.createElement("script");
+  script.id = "pegawaiScript";
+
+  script.onerror = function() {
+    delete window[callbackName];
+    script.remove();
+    select.innerHTML = '<option value="">Gagal memuat pegawai</option>';
+    msg("Gagal menghubungi Apps Script. Periksa URL dan deployment.", "bad");
+  };
+
+  script.src = API_URL + "?action=pegawai&callback=" +
+               callbackName + "&_=" + Date.now();
+
+  document.body.appendChild(script);
+}
+
+$("nama").addEventListener("change", function() {
+  const opsi = this.selectedOptions[0];
+  $("nip").value = opsi ? (opsi.dataset.nip || "") : "";
+});
+
+window.addEventListener("load", muatPegawai);
 function pilihMode(v){mode=v;photoData="";$("preview").style.display="none";$("inMode").classList.toggle("selected",v==="Dalam Gedung");$("outMode").classList.toggle("selected",v==="Luar Gedung");$("modeHint").textContent=v==="Dalam Gedung"?"Aktifkan GPS dan ambil foto selfie di Puskesmas.":"Ambil foto kegiatan di luar gedung dan isi keterangan kegiatan.";$("ketWajib").classList.toggle("hidden",v!=="Luar Gedung");stopCamera();msg("Mode "+v+" dipilih.");}
 async function bukaKamera(){if(!mode){msg("Pilih Dalam Gedung atau Luar Gedung dahulu.","bad");return;}if(!navigator.mediaDevices?.getUserMedia){msg("Kamera tidak tersedia. Buka aplikasi melalui GitHub Pages HTTPS.","bad");return;}stopCamera();try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:mode==="Luar Gedung"?"environment":"user"},width:{ideal:800},height:{ideal:600}},audio:false});$("video").srcObject=stream;await $("video").play();msg("Kamera aktif. Ambil foto bila siap.","good");}catch(e){msg("Kamera gagal dibuka ("+(e.name||"Error")+"). Izinkan kamera di browser.","bad");}}
 function stopCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}if($("video"))$("video").srcObject=null;}
