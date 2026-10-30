@@ -34,9 +34,17 @@ label{display:block;font-size:13px;font-weight:800;margin:15px 0 7px;color:#2946
 <p id="modeHint" class="small">Pilih jenis lokasi untuk menampilkan instruksi yang sesuai.</p>
 
 <div class="step">2. Identitas pegawai</div>
-<label for="nama">Nama lengkap <span class="required">*</span></label><input id="nama" autocomplete="name" placeholder="Masukkan nama lengkap">
-<label for="nip">NIP (bila ada)</label><input id="nip" inputmode="numeric" placeholder="Masukkan NIP">
-<label for="statusAbsensi">Jenis absensi</label><select id="statusAbsensi"><option value="Hadir">Hadir / Masuk</option><option value="Pulang">Pulang</option><option value="Dinas Luar">Dinas luar</option><option value="Izin">Izin</option><option value="Sakit">Sakit</option></select>
+<label for="nama">Nama lengkap <span class="required">*</span></label>
+<input id="nama" list="daftarNamaPegawai" autocomplete="off" placeholder="Ketik atau pilih nama pegawai">
+<datalist id="daftarNamaPegawai"></datalist>
+<p id="pegawaiHint" class="small">Daftar nama pegawai sedang dimuat…</p>
+<label for="nip">NIP (otomatis dari nama)</label><input id="nip" inputmode="numeric" placeholder="NIP akan terisi setelah nama dipilih" readonly>
+<label for="statusAbsensi">Jenis absensi</label><select id="statusAbsensi"><option value="Hadir">Hadir / Absen Masuk</option><option value="Pulang">Absen Pulang</option><option value="Dinas Luar">Dinas luar</option><option value="Izin">Izin</option><option value="Sakit">Sakit</option></select>
+<div id="shiftWrap">
+<label for="shift">Shift kerja <span class="required">*</span></label>
+<select id="shift"><option value="">-- Pilih shift --</option><option value="Pagi">Shift Pagi (08.00–14.00)</option><option value="Siang">Shift Siang (14.00–20.00)</option><option value="Malam">Shift Malam (20.00–08.00)</option></select>
+<p class="small">Pilih shift yang sesuai dengan jadwal kerja. Untuk Shift Malam, absen pulang dilakukan keesokan pagi.</p>
+</div>
 <label for="keterangan">Keterangan kegiatan <span id="ketWajib" class="required hidden">*</span></label><textarea id="keterangan" placeholder="Contoh: pelayanan luar gedung, kunjungan rumah, lokakarya..."></textarea>
 
 <div class="step">3. Foto <span class="required">*</span></div>
@@ -66,12 +74,63 @@ let photoData = "";
 let gps = { latitude: "", longitude: "", accuracy: "" };
 const $ = id => document.getElementById(id);
 function showMessage(text, kind="") { const box=$("message"); box.textContent=text; box.className="status"+(kind?" "+kind:""); }
+function perbaruiTampilanShift() {
+  const perluShift = mode === "Dalam Gedung" && ["Hadir", "Pulang"].includes($("statusAbsensi").value);
+  $("shiftWrap").classList.toggle("hidden", !perluShift);
+  if (!perluShift) $("shift").value = "";
+}
+$("statusAbsensi").addEventListener("change", perbaruiTampilanShift);
+// Ambil daftar pegawai dari Google Apps Script tanpa mengubah data absensi.
+let daftarPegawai = [];
+window.absenkuPegawaiCallback = function(res) {
+  if (!res || !res.ok || !Array.isArray(res.pegawai)) {
+    $("pegawaiHint").textContent = "Daftar nama belum berhasil dimuat. Bestie masih bisa mengetik nama secara manual.";
+    return;
+  }
+  daftarPegawai = res.pegawai;
+  const list = $("daftarNamaPegawai");
+  list.innerHTML = "";
+  daftarPegawai.forEach(p => {
+    if (!p || !p.nama) return;
+    const option = document.createElement("option");
+    option.value = p.nama;
+    list.appendChild(option);
+  });
+  $("pegawaiHint").textContent = daftarPegawai.length
+    ? "Daftar pegawai berhasil dimuat (" + daftarPegawai.length + "). Ketik nama lalu pilih nama yang sesuai."
+    : "Daftar pegawai kosong. Periksa tab DATA PEGAWAI PKM WULANDONI.";
+};
+function muatDaftarPegawai() {
+  const script = document.createElement("script");
+  script.src = API_URL + (API_URL.includes("?") ? "&" : "?") +
+    "action=pegawai&callback=absenkuPegawaiCallback&_=" + Date.now();
+  script.onerror = function() {
+    $("pegawaiHint").textContent = "Daftar nama gagal dihubungkan. Bestie masih bisa mengetik nama secara manual.";
+  };
+  document.body.appendChild(script);
+}
+function isiNipDariNama() {
+  const namaDipilih = $("nama").value.trim().toLocaleLowerCase("id-ID");
+  const pegawai = daftarPegawai.find(p =>
+    String(p.nama || "").trim().toLocaleLowerCase("id-ID") === namaDipilih
+  );
+  if (pegawai) {
+    $("nip").value = pegawai.nip || "";
+    $("pegawaiHint").textContent = "Nama dipilih: " + pegawai.nama + (pegawai.jabatan ? " — " + pegawai.jabatan : "") + ". NIP terisi otomatis.";
+  } else {
+    $("nip").value = "";
+    if (namaDipilih) $("pegawaiHint").textContent = "Pilih nama yang tersedia pada daftar agar NIP terisi otomatis.";
+  }
+}
+$("nama").addEventListener("change", isiNipDariNama);
+$("nama").addEventListener("input", isiNipDariNama);
 function pilihMode(value) {
   mode=value; photoData=""; $("preview").style.display="none";
   $("inMode").classList.toggle("selected",value==="Dalam Gedung");
   $("outMode").classList.toggle("selected",value==="Luar Gedung");
   $("modeHint").textContent=value==="Dalam Gedung"?"Gunakan kamera depan untuk selfie dan ambil GPS di lokasi kerja.":"Gunakan kamera untuk foto kegiatan dan tulis keterangan kegiatan.";
   $("ketWajib").classList.toggle("hidden",value!=="Luar Gedung");
+  perbaruiTampilanShift();
   stopCamera();
   showMessage("Mode "+value+" dipilih. Silakan isi identitas dan ambil foto.");
 }
@@ -97,8 +156,9 @@ async function kirimAbsensi(){
  if(!nama){showMessage("Nama lengkap wajib diisi.","bad");$("nama").focus();return;}
  if(!photoData){showMessage("Ambil foto terlebih dahulu.","bad");return;}
  if(mode==="Dalam Gedung"&&!gps.latitude){showMessage("Ambil GPS dahulu untuk absensi Dalam Gedung.","bad");return;}
+ if(mode==="Dalam Gedung"&&["Hadir", "Pulang"].includes(status)&&!$("shift").value){showMessage("Pilih Shift Pagi, Siang, atau Malam terlebih dahulu.","bad");$("shift").focus();return;}
  if(mode==="Luar Gedung"&&!keterangan){showMessage("Isi keterangan kegiatan untuk absensi Luar Gedung.","bad");$("keterangan").focus();return;}
- const now=localDateTime();const payload={nama,nip,jenisAbsensi:mode,tanggal:now.tanggal,jam:now.jam,latitude:gps.latitude,longitude:gps.longitude,akurasiGps:gps.accuracy,keterangan,status,fotoBase64:photoData,fotoMimeType:"image/jpeg"};
+ const now=localDateTime();const payload={nama,nip,jenisAbsensi:mode,shift:$("shift").value,tanggal:now.tanggal,jam:now.jam,latitude:gps.latitude,longitude:gps.longitude,akurasiGps:gps.accuracy,keterangan,status,fotoBase64:photoData,fotoMimeType:"image/jpeg"};
  const btn=$("sendBtn");btn.disabled=true;btn.textContent="Mengirim…";showMessage("Mengirim permintaan absensi…");
  try{
    await fetch(API_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify(payload)});
@@ -106,6 +166,8 @@ async function kirimAbsensi(){
  }catch(e){showMessage("Pengiriman gagal dari browser: "+(e.message||e),"bad");}
  finally{btn.disabled=false;btn.textContent="Kirim Absensi";}
 }
+muatDaftarPegawai();
+perbaruiTampilanShift();
 window.addEventListener("pagehide",stopCamera);
 </script>
 </body>
